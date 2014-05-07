@@ -31,7 +31,7 @@ app = Flask(__name__)
 
 
 @app.route('/_thrift', methods=['POST'])
-def profile_service_api():
+def _thrift():
     itrans = TTransport.TMemoryBuffer(request.data)
     otrans = TTransport.TMemoryBuffer()
     iprot = hello_server.inputProtocolFactory.getProtocol(itrans)
