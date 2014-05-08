@@ -6,7 +6,7 @@ from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
 from thrift.transport import TTransport
 
-sys.path.append('./gen-py')
+sys.path.append('../gen-py')
 
 from helloworld import HelloWorld
 from helloworld.ttypes import *      # NOQA
