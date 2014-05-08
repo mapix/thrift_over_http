@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import base64
 from thrift import Thrift
 from thrift.transport import THttpClient
 from thrift.transport import TTransport
@@ -14,8 +15,14 @@ from helloworld.constants import *  # NOQA
 
 
 try:
+    username = 'admin'
+    password = 'secret'
+
     # Make socket
     transport = THttpClient.THttpClient('http://localhost:10089/_thrift')
+    transport.setCustomHeaders({'Authorization': 'Basic %s' % base64.standard_b64encode(
+        '%s:%s' % (username, password)
+    )})
 
     # Buffering is critical. Raw sockets are very slow
     transport = TTransport.TBufferedTransport(transport)
@@ -32,7 +39,7 @@ try:
     client.ping()
     print "ping()"
 
-    print client.echo("echo should return from server side")
+    print client.echo("echo from server side")
 
     transport.close()
 except Thrift.TException, tx:

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from flask import Flask, request, make_response
+from functools import wraps
+from flask import Flask, g, request, make_response
 from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
 from thrift.transport import TTransport
@@ -13,13 +14,31 @@ from helloworld.ttypes import *      # NOQA
 from helloworld.constants import *   # NOQA
 
 
+def check_auth(username, password):
+    return username == 'admin' and password == 'secret'
+
+
+def requires_authorization(failure):
+    def _requires_authorization(func):
+        @wraps(func)
+        def _(*args, **kwargs):
+            auth = request.authorization
+            if not auth or not check_auth(auth.username, auth.password):
+                return failure
+            g.user = auth.username
+            return func(*args, **kwargs)
+        return _
+    return _requires_authorization
+
+
 class HelloWorldHandler(object):
 
     def ping(self):
         print "ping ..."
 
+    @requires_authorization('Basic Authenticate required')
     def echo(self, msg):
-        return msg
+        return 'Hello %s: %s' % (g.user, msg)
 
 
 handler = HelloWorldHandler()
